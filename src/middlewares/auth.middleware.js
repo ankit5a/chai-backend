@@ -16,7 +16,11 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
 
     const decodedToken = jwt.verify(token, env.ACCESS_TOKEN_SECRET);
 
-    const user = await User.findById(decodedToken?._id).select(
+    if (typeof decodedToken !== "object" || !decodedToken._id) {
+      throw new ApiError(401, "Invalid token payload");
+    }
+
+    const user = await User.findById(decodedToken._id).select(
       "-password -refreshToken"
     );
 
